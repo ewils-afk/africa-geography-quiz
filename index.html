@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Africa Geography Quiz — 21 Countries</title>
+  <style>
+    :root {
+      --bg: #0b1220;
+      --surface: #111b2e;
+      --surface-2: #17243d;
+      --border: rgba(148, 163, 184, 0.18);
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+      --accent-soft: rgba(56, 189, 248, 0.14);
+      --correct: #22c55e;
+      --correct-soft: rgba(34, 197, 94, 0.18);
+      --wrong: #ef4444;
+      --wrong-soft: rgba(239, 68, 68, 0.18);
+      --bg-country: #1e293b;
+      --bg-country-stroke: #334155;
+      --pool-country: #26364f;
+      --pool-stroke: #64748b;
+      --ocean: #091526;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100dvh;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif;
+      background: radial-gradient(circle at top, #13223b 0%, var(--bg) 55%);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      border-bottom: 1px solid var(--border);
+      background: rgba(17, 27, 46, 0.85);
+      backdrop-filter: blur(10px);
+      padding: 14px 20px;
+    }
+
+    .header-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+
+    .brand p {
+      margin: 2px 0 0;
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+
+    .stats-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .stat-pill {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 6px 13px;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .stat-pill strong {
+      color: var(--accent);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .stat-pill.score-pill strong {
+      color: #4ade80;
+    }
+
+    button.btn-restart {
+      background: var(--accent);
+      color: #061322;
+      border: none;
+      border-radius: 999px;
+      padding: 7px 15px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.12s ease, filter 0.15s ease;
+    }
+
+    button.btn-restart:hover {
+      filter: brightness(1.08);
+      transform: translateY(-1px);
+    }
+
+    button.btn-restart:active {
+      transform: translateY(0);
+    }
+
+    main {
+      flex: 1;
+      max-width: 1200px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 16px 20px 24px;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 310px;
+      gap: 18px;
+      align-items: start;
+    }
+
+    @media (max-width: 900px) {
+      main {
+        grid-template-columns: 1fr;
+        padding: 12px 14px 20px;
+        gap: 14px;
+      }
+    }
+
+    .prompt-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 14px 18px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .prompt-label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .target-country {
+      font-size: clamp(1.45rem, 3.2vw, 2.1rem);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: #ffffff;
+      margin-top: 2px;
+    }
+
+    .feedback-box {
+      min-height: 40px;
+      display: flex;
+      align-items: center;
+      padding: 8px 14px;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+    }
+
+    .feedback-box.correct {
+      background: var(--correct-soft);
+      border-color: rgba(34, 197, 94, 0.45);
+      color: #86efac;
+    }
+
+    .feedback-box.wrong {
+      background: var(--wrong-soft);
+      border-color: rgba(239, 68, 68, 0.45);
+      color: #fca5a5;
+    }
+
+    .feedback-box.info {
+      background: var(--accent-soft);
+      border-color: rgba(56, 189, 248, 0.45);
+      color: #7dd3fc;
+    }
+
+    .map-wrapper {
+      position: relative;
+      background: var(--ocean);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+      aspect-ratio: 4 / 3.8;
+      min-height: 360px;
+    }
+
+    @media (max-width: 900px) {
+      .map-wrapper {
+        aspect-ratio: 1 / 1.05;
+        min-height: 330px;
+      }
+    }
+
+    #map-svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+      touch-action: manipulation;
+    }
+
+    .country-path {
+      transition: fill 0.16s ease, stroke 0.16s ease, opacity 0.16s ease;
+      vector-effect: non-scaling-stroke;
+    }
+
+    .country-bg {
+      fill: var(--bg-country);
+      stroke: var(--bg-country-stroke);
+      stroke-width: 0.8;
+      cursor: default;
+    }
+
+    .country-pool {
+      fill: var(--pool-country);
+      stroke: var(--pool-stroke);
+      stroke-width: 1;
+      cursor: pointer;
+    }
+
+    .country-pool:hover {
+      fill: #334b6e;
+      stroke: var(--accent);
+      stroke-width: 1.5;
+    }
+
+    .country-correct {
+      fill: var(--correct) !important;
+      stroke: #dcfce7 !important;
+      stroke-width: 1.5 !important;
+      cursor: pointer;
+    }
+
+    .country-flash-wrong {
+      fill: var(--wrong) !important;
+      stroke: #fecaca !important;
+      stroke-width: 1.8 !important;
+    }
+
+    .country-marker {
+      cursor: pointer;
+      transition: transform 0.15s ease;
+    }
+
+    .country-marker:hover circle {
+      stroke: var(--accent);
+      stroke-width: 2;
+    }
+
+    .tooltip {
+      position: absolute;
+      pointer-events: none;
+      background: rgba(15, 23, 42, 0.94);
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      color: #f8fafc;
+      padding: 5px 10px;
+      border-radius: 8px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
+      transform: translate(-50%, -125%);
+      white-space: nowrap;
+      opacity: 0;
+      transition: opacity 0.12s ease;
+      z-index: 10;
+    }
+
+    .tooltip.visible {
+      opacity: 1;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-top: 10px;
+      font-size: 0.78rem;
+      color: var(--muted);
+      padding: 0 4px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .swatch {
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+      display: inline-block;
+    }
+
+    .sidebar {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px;
+    }
+
+    .sidebar h2 {
+      margin: 0 0 4px;
+      font-size: 0.95rem;
+      font-weight: 700;
+    }
+
+    .sidebar .sub {
+      margin: 0 0 12px;
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 7px;
+      background: var(--surface-2);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-bottom: 14px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent), var(--correct));
+      transition: width 0.25s ease;
+    }
+
+    .country-checklist {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 6px;
+    }
+
+    @media (max-width: 900px) {
+      .country-checklist {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 480px) {
+      .country-checklist {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    .checklist-item {
+      font-size: 0.78rem;
+      padding: 6px 9px;
+      border-radius: 8px;
+      background: var(--surface-2);
+      border: 1px solid transparent;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .checklist-item .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #475569;
+      flex-shrink: 0;
+    }
+
+    .checklist-item.found {
+      background: var(--correct-soft);
+      border-color: rgba(34, 197, 94, 0.35);
+      color: #bbf7d0;
+      font-weight: 600;
+    }
+
+    .checklist-item.found .dot {
+      background: var(--correct);
+    }
+
+    .checklist-item.current {
+      border-color: var(--accent);
+      color: #ffffff;
+      font-weight: 600;
+    }
+
+    .checklist-item.current .dot {
+      background: var(--accent);
+    }
+
+    .summary-banner {
+      display: none;
+      margin-top: 14px;
+      padding: 14px;
+      border-radius: 12px;
+      background: var(--surface-2);
+      border: 1px solid rgba(34, 197, 94, 0.4);
+    }
+
+    .summary-banner.active {
+      display: block;
+    }
+
+    .summary-banner h3 {
+      margin: 0 0 4px;
+      font-size: 1rem;
+      color: #4ade80;
+    }
+
+    .summary-banner p {
+      margin: 0;
+      font-size: 0.84rem;
+      color: var(--text);
+      line-height: 1.45;
+    }
+
+    .loading-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--ocean);
+      color: var(--muted);
+      font-size: 0.92rem;
+      z-index: 5;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <div class="brand">
+        <h1>Africa Geography Quiz</h1>
+        <p>Click each requested country on the map — 21 target nations in randomized order</p>
+      </div>
+      <div class="stats-bar">
+        <div class="stat-pill">
+          <span>Progress:</span>
+          <strong id="progress-text">0 / 21</strong>
+        </div>
+        <div class="stat-pill score-pill">
+          <span>Score:</span>
+          <strong id="score-text">0 / 21</strong>
+        </div>
+        <button class="btn-restart" id="restart-btn" type="button">Restart Quiz</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section>
+      <div class="prompt-card">
+        <div>
+          <div class="prompt-label" id="prompt-label">Find this country on the map</div>
+          <div class="target-country" id="target-country">Loading...</div>
+        </div>
+        <div class="feedback-box info" id="feedback-box">
+          Loading map boundaries...
+        </div>
+      </div>
+
+      <div class="map-wrapper" id="map-wrapper">
+        <div class="loading-overlay" id="loading-overlay">Loading Africa map data...</div>
+        <svg id="map-svg" role="img" aria-label="Map of Africa"></svg>
+        <div class="tooltip" id="tooltip"></div>
+      </div>
+
+      <div class="legend">
+        <div class="legend-item">
+          <span class="swatch" style="background: var(--pool-country); border: 1px solid var(--pool-stroke);"></span>
+          <span>Clickable quiz country (21)</span>
+        </div>
+        <div class="legend-item">
+          <span class="swatch" style="background: var(--correct);"></span>
+          <span>Correct</span>
+        </div>
+        <div class="legend-item">
+          <span class="swatch" style="background: var(--bg-country); border: 1px solid var(--bg-country-stroke);"></span>
+          <span>Other African country (unclickable)</span>
+        </div>
+      </div>
+    </section>
+
+    <aside class="sidebar">
+      <h2>Target Countries</h2>
+      <p class="sub">Only these 21 countries are clickable on the map.</p>
+      <div class="progress-track">
+        <div class="progress-fill" id="progress-fill"></div>
+      </div>
+      <ul class="country-checklist" id="country-checklist"></ul>
+
+      <div class="summary-banner" id="summary-banner">
+        <h3>Quiz Complete!</h3>
+        <p id="summary-text"></p>
+      </div>
+    </aside>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
+  <script>
+    const QUIZ_COUNTRIES = [
+      { id: "818", name: "Egypt" },
+      { id: "434", name: "Libya" },
+      { id: "729", name: "Sudan" },
+      { id: "728", name: "South Sudan" },
+      { id: "504", name: "Morocco" },
+      { id: "232", name: "Eritrea" },
+      { id: "012", name: "Algeria" },
+      { id: "788", name: "Tunisia" },
+      { id: "466", name: "Mali" },
+      { id: "562", name: "Niger" },
+      { id: "566", name: "Nigeria" },
+      { id: "148", name: "Chad" },
+      { id: "231", name: "Ethiopia" },
+      { id: "288", name: "Ghana" },
+      { id: "478", name: "Mauritania" },
+      { id: "686", name: "Senegal" },
+      { id: "324", name: "Guinea" },
+      { id: "694", name: "Sierra Leone" },
+      { id: "430", name: "Liberia" },
+      { id: "384", name: "Ivory Coast" },
+      { id: "262", name: "Djibouti" }
+    ];
+
+    const AFRICA_ISO_IDS = new Set([
+      "012", "024", "204", "072", "854", "108", "132", "120", "140", "148",
+      "174", "178", "180", "262", "818", "226", "232", "748", "231", "266",
+      "270", "288", "324", "624", "384", "404", "426", "430", "434", "450",
+      "454", "466", "478", "480", "504", "508", "516", "562", "566", "646",
+      "678", "686", "690", "694", "706", "710", "728", "729", "834", "768",
+      "788", "800", "732", "894", "716"
+    ]);
+
+    const quizById = new Map(QUIZ_COUNTRIES.map((c) => [c.id, c.name]));
+
+    let queue = [];
+    let currentIndex = 0;
+    let score = 0;
+    let completedCount = 0;
+    let isFinished = false;
+    let attemptedCurrent = false;
+
+    const foundIds = new Set();
+    const pathById = new Map();
+    const markerById = new Map();
+
+    const svg = d3.select("#map-svg");
+    const mapWrapper = document.getElementById("map-wrapper");
+    const tooltip = document.getElementById("tooltip");
+    const targetCountryEl = document.getElementById("target-country");
+    const promptLabelEl = document.getElementById("prompt-label");
+    const feedbackBoxEl = document.getElementById("feedback-box");
+    const progressTextEl = document.getElementById("progress-text");
+    const scoreTextEl = document.getElementById("score-text");
+    const progressFillEl = document.getElementById("progress-fill");
+    const checklistEl = document.getElementById("country-checklist");
+    const summaryBannerEl = document.getElementById("summary-banner");
+    const summaryTextEl = document.getElementById("summary-text");
+    const loadingOverlayEl = document.getElementById("loading-overlay");
+
+    function shuffle(array) {
+      const copy = array.slice();
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    function setFeedback(message, type = "info") {
+      feedbackBoxEl.textContent = message;
+      feedbackBoxEl.className = `feedback-box ${type}`;
+    }
+
+    function updateHud() {
+      progressTextEl.textContent = `${completedCount} / ${QUIZ_COUNTRIES.length}`;
+      scoreTextEl.textContent = `${score} / ${QUIZ_COUNTRIES.length}`;
+      progressFillEl.style.width = `${(completedCount / QUIZ_COUNTRIES.length) * 100}%`;
+
+      const currentTarget = queue[currentIndex];
+      const items = checklistEl.querySelectorAll(".checklist-item");
+      items.forEach((li) => {
+        const id = li.dataset.id;
+        li.classList.remove("found", "current");
+        if (foundIds.has(id)) {
+          li.classList.add("found");
+        } else if (!isFinished && currentTarget && currentTarget.id === id) {
+          li.classList.add("current");
+        }
+      });
+    }
+
+    function buildChecklist() {
+      checklistEl.innerHTML = "";
+      QUIZ_COUNTRIES.forEach((country) => {
+        const li = document.createElement("li");
+        li.className = "checklist-item";
+        li.dataset.id = country.id;
+        li.title = country.name;
+        li.innerHTML = `<span class="dot"></span><span>${country.name}</span>`;
+        checklistEl.appendChild(li);
+      });
+    }
+
+    function startQuiz() {
+      queue = shuffle(QUIZ_COUNTRIES);
+      currentIndex = 0;
+      score = 0;
+      completedCount = 0;
+      isFinished = false;
+      attemptedCurrent = false;
+      foundIds.clear();
+      hideTooltip();
+
+      summaryBannerEl.classList.remove("active");
+      promptLabelEl.textContent = "Find this country on the map";
+
+      pathById.forEach((sel) => {
+        sel.classed("country-correct", false).classed("country-flash-wrong", false);
+      });
+      markerById.forEach((g) => {
+        g.select("circle").attr("fill", "#38bdf8").attr("r", 4.2);
+      });
+
+      targetCountryEl.textContent = queue[0].name;
+      setFeedback(`Click on ${queue[0].name} on the map.`, "info");
+      updateHud();
+    }
+
+    function markCountryCorrect(id) {
+      foundIds.add(id);
+      const pathSel = pathById.get(id);
+      if (pathSel) {
+        pathSel.classed("country-correct", true).classed("country-flash-wrong", false);
+      }
+      const markerSel = markerById.get(id);
+      if (markerSel) {
+        markerSel.select("circle").attr("fill", "#22c55e").attr("r", 5);
+      }
+    }
+
+    function advanceToNext() {
+      completedCount += 1;
+      currentIndex += 1;
+      attemptedCurrent = false;
+
+      if (currentIndex >= queue.length) {
+        isFinished = true;
+        promptLabelEl.textContent = "Session complete";
+        targetCountryEl.textContent = "All 21 Reviewed!";
+        const pct = Math.round((score / QUIZ_COUNTRIES.length) * 100);
+        setFeedback(`Final score: ${score} / ${QUIZ_COUNTRIES.length} (${pct}%).`, "correct");
+        summaryTextEl.textContent = `You scored ${score} out of ${QUIZ_COUNTRIES.length} (${pct}%). Click "Restart Quiz" anytime to shuffle a new round.`;
+        summaryBannerEl.classList.add("active");
+        updateHud();
+        return;
+      }
+
+      const nextTarget = queue[currentIndex];
+      targetCountryEl.textContent = nextTarget.name;
+      setFeedback(`Now find ${nextTarget.name}.`, "info");
+      updateHud();
+    }
+
+    function handleQuizCountryClick(clickedId) {
+      if (isFinished || !queue[currentIndex]) return;
+      if (foundIds.has(clickedId)) return;
+
+      const target = queue[currentIndex];
+      const clickedName = quizById.get(clickedId);
+
+      if (clickedId === target.id) {
+        if (!attemptedCurrent) {
+          score += 1;
+        }
+        markCountryCorrect(clickedId);
+        setFeedback(
+          attemptedCurrent
+            ? `Found ${target.name}! Moving to the next country...`
+            : `Correct! That is ${target.name}.`,
+          "correct"
+        );
+        updateHud();
+        advanceToNext();
+      } else {
+        attemptedCurrent = true;
+        const wrongPath = pathById.get(clickedId);
+        if (wrongPath) {
+          wrongPath.classed("country-flash-wrong", true);
+          window.setTimeout(() => {
+            wrongPath.classed("country-flash-wrong", false);
+          }, 550);
+        }
+        setFeedback(
+          `That's ${clickedName} — keep looking for ${target.name}.`,
+          "wrong"
+        );
+      }
+    }
+
+    function showTooltip(event, text) {
+      const rect = mapWrapper.getBoundingClientRect();
+      const x = event.clientX - rect.left;
+      const y = event.clientY - rect.top;
+      tooltip.textContent = text;
+      tooltip.style.left = `${x}px`;
+      tooltip.style.top = `${y}px`;
+      tooltip.classList.add("visible");
+    }
+
+    function hideTooltip() {
+      tooltip.classList.remove("visible");
+    }
+
+    async function initMap() {
+      buildChecklist();
+
+      try {
+        const topo = await d3.json("https://cdn.jsdelivr.net/npm/world-atlas@2/countries-50m.json");
+        const allCountries = topojson.feature(topo, topo.objects.countries).features;
+
+        const africaFeatures = allCountries.filter((f) => {
+          const iso = String(f.id ?? "").padStart(3, "0");
+          return AFRICA_ISO_IDS.has(iso);
+        });
+
+        const width = 800;
+        const height = 760;
+
+        svg
+          .attr("viewBox", `0 0 ${width} ${height}`)
+          .attr("preserveAspectRatio", "xMidYMid meet");
+
+        const africaCollection = {
+          type: "FeatureCollection",
+          features: africaFeatures
+        };
+
+        const projection = d3
+          .geoNaturalEarth1()
+          .fitExtent(
+            [
+              [24, 24],
+              [width - 24, height - 24]
+            ],
+            africaCollection
+          );
+
+        const pathGenerator = d3.geoPath().projection(projection);
+
+        const gCountries = svg.append("g").attr("id", "countries-layer");
+        const gMarkers = svg.append("g").attr("id", "markers-layer");
+
+        const sortedFeatures = africaFeatures.slice().sort((a, b) => {
+          const idA = String(a.id ?? "").padStart(3, "0");
+          const idB = String(b.id ?? "").padStart(3, "0");
+          const qA = quizById.has(idA) ? 1 : 0;
+          const qB = quizById.has(idB) ? 1 : 0;
+          return qA - qB;
+        });
+
+        sortedFeatures.forEach((feature) => {
+          const iso = String(feature.id ?? "").padStart(3, "0");
+          const isQuizCountry = quizById.has(iso);
+          const dAttr = pathGenerator(feature);
+          if (!dAttr) return;
+
+          const pathSel = gCountries
+            .append("path")
+            .attr("d", dAttr)
+            .attr("class", `country-path ${isQuizCountry ? "country-pool" : "country-bg"}`);
+
+          if (isQuizCountry) {
+            const name = quizById.get(iso);
+            pathById.set(iso, pathSel);
+
+            pathSel
+              .on("mousemove", (event) => {
+                // Never reveal unfound country names on hover
+                if (foundIds.has(iso)) {
+                  showTooltip(event, `${name} ✓`);
+                } else {
+                  hideTooltip();
+                }
+              })
+              .on("mouseleave", hideTooltip)
+              .on("click", (event) => {
+                event.stopPropagation();
+                handleQuizCountryClick(iso);
+              });
+
+            if (iso === "262") {
+              const centroid = pathGenerator.centroid(feature);
+              if (Number.isFinite(centroid[0]) && Number.isFinite(centroid[1])) {
+                const markerGroup = gMarkers
+                  .append("g")
+                  .attr("class", "country-marker")
+                  .attr("transform", `translate(${centroid[0]}, ${centroid[1]})`);
+
+                markerGroup
+                  .append("circle")
+                  .attr("r", 4.2)
+                  .attr("fill", "#38bdf8")
+                  .attr("stroke", "#061322")
+                  .attr("stroke-width", 1.5);
+
+                markerGroup
+                  .append("circle")
+                  .attr("r", 14)
+                  .attr("fill", "transparent");
+
+                markerGroup
+                  .on("mousemove", (event) => {
+                    if (foundIds.has(iso)) {
+                      showTooltip(event, `${name} ✓`);
+                    } else {
+                      hideTooltip();
+                    }
+                  })
+                  .on("mouseleave", hideTooltip)
+                  .on("click", (event) => {
+                    event.stopPropagation();
+                    handleQuizCountryClick(iso);
+                  });
+
+                markerById.set(iso, markerGroup);
+              }
+            }
+          } else {
+            pathSel.on("click", (event) => {
+              event.stopPropagation();
+            });
+          }
+        });
+
+        loadingOverlayEl.style.display = "none";
+        startQuiz();
+      } catch (err) {
+        console.error(err);
+        loadingOverlayEl.textContent = "Could not load map boundaries. Please check your connection and refresh.";
+        setFeedback("Map failed to load.", "wrong");
+      }
+    }
+
+    document.getElementById("restart-btn").addEventListener("click", startQuiz);
+    initMap();
+  </script>
+</body>
+</html>
